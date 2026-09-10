@@ -2,287 +2,251 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>Forest Quest RPG</title>
 
 <style>
-* {
-    box-sizing: border-box;
+*{box-sizing:border-box}
+
+html,body{
+ margin:0;
+ width:100%;
+ height:100%;
+ overflow:hidden;
+ background:#090d14;
+ color:white;
+ font-family:Arial,sans-serif
 }
 
-html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #090d14;
-    color: white;
-    font-family: Arial, sans-serif;
+canvas{
+ display:block;
+ width:100vw;
+ height:100vh;
+ image-rendering:pixelated
 }
 
-canvas {
-    display: block;
-    width: 100vw;
-    height: 100vh;
-    image-rendering: pixelated;
+#hud{
+ position:fixed;
+ top:0;
+ left:0;
+ right:0;
+ height:76px;
+ background:rgba(8,12,20,.96);
+ display:flex;
+ align-items:center;
+ gap:15px;
+ padding:9px 15px;
+ z-index:10;
+ border-bottom:2px solid #273244
 }
 
-#hud {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 76px;
-    background: rgba(8, 12, 20, 0.95);
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    padding: 10px 18px;
-    z-index: 10;
-    border-bottom: 2px solid #273244;
+.stat{min-width:100px}
+
+.stat-title{
+ font-size:11px;
+ color:#9ca9bd;
+ margin-bottom:4px
 }
 
-.stat {
-    min-width: 110px;
+.bar{
+ width:125px;
+ height:13px;
+ background:#252b35;
+ border-radius:5px;
+ overflow:hidden
 }
 
-.stat-title {
-    font-size: 12px;
-    color: #9ca9bd;
-    margin-bottom: 4px;
+.bar-inner{
+ height:100%;
+ transition:width .15s
 }
 
-.bar {
-    width: 130px;
-    height: 13px;
-    background: #252b35;
-    border-radius: 5px;
-    overflow: hidden;
+#healthBar{background:#e84c4c}
+#xpBar{background:#4d9cff}
+
+#coins{
+ font-weight:bold;
+ color:#ffd54a
 }
 
-.bar-inner {
-    height: 100%;
-    transition: width .15s;
+#biomeName{
+ margin-left:auto;
+ font-size:18px;
+ font-weight:bold
 }
 
-#healthBar {
-    background: #e84c4c;
+button{
+ border:0;
+ border-radius:7px;
+ padding:10px 14px;
+ color:white;
+ background:#27364d;
+ cursor:pointer;
+ font-weight:bold
 }
 
-#xpBar {
-    background: #4d9cff;
+button:hover{background:#38516f}
+
+#storeButton{background:#a87524}
+#storeButton:hover{background:#c38a2d}
+
+#store{
+ position:fixed;
+ z-index:30;
+ width:700px;
+ max-width:92vw;
+ max-height:88vh;
+ overflow-y:auto;
+ left:50%;
+ top:50%;
+ transform:translate(-50%,-50%);
+ background:#111827;
+ border:2px solid #35445b;
+ border-radius:14px;
+ padding:22px;
+ display:none;
+ box-shadow:0 20px 60px rgba(0,0,0,.7)
 }
 
-#coins {
-    font-weight: bold;
-    color: #ffd54a;
+.store-header{
+ display:flex;
+ justify-content:space-between;
+ align-items:center
 }
 
-#biomeName {
-    font-size: 19px;
-    font-weight: bold;
-    margin-left: auto;
+.store-header h1{margin:0}
+
+.store-explanation{
+ color:#b8c2d1;
+ line-height:1.45;
+ background:#182235;
+ padding:13px;
+ border-radius:9px;
+ margin:15px 0
 }
 
-button {
-    border: none;
-    border-radius: 7px;
-    padding: 10px 14px;
-    color: white;
-    background: #27364d;
-    cursor: pointer;
-    font-weight: bold;
+.store-grid{
+ display:grid;
+ grid-template-columns:repeat(2,1fr);
+ gap:11px
 }
 
-button:hover {
-    background: #38516f;
+.shop-item{
+ background:#182235;
+ border:1px solid #2d3a50;
+ padding:14px;
+ border-radius:10px
 }
 
-#storeButton {
-    background: #a87524;
+.shop-item h3{margin:0 0 7px}
+
+.shop-item p{
+ color:#aab5c6;
+ min-height:38px;
+ line-height:1.3
 }
 
-#storeButton:hover {
-    background: #c38a2d;
+.price{
+ color:#ffd54a;
+ font-weight:bold;
+ margin-bottom:8px
 }
 
-#store {
-    position: fixed;
-    z-index: 30;
-    width: 720px;
-    max-width: 92vw;
-    max-height: 88vh;
-    overflow-y: auto;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    background: #111827;
-    border: 2px solid #35445b;
-    border-radius: 14px;
-    padding: 24px;
-    display: none;
-    box-shadow: 0 20px 60px rgba(0,0,0,.7);
+.shop-item button{width:100%}
+
+#message{
+ position:fixed;
+ left:50%;
+ bottom:25px;
+ transform:translateX(-50%);
+ background:rgba(8,12,20,.94);
+ padding:11px 18px;
+ border-radius:8px;
+ z-index:40;
+ pointer-events:none;
+ opacity:0;
+ transition:opacity .2s
 }
 
-.store-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+#bossInfo{
+ position:fixed;
+ top:88px;
+ left:50%;
+ transform:translateX(-50%);
+ width:360px;
+ text-align:center;
+ z-index:12;
+ display:none
 }
 
-.store-header h1 {
-    margin: 0;
+#bossName{
+ font-weight:bold;
+ margin-bottom:5px
 }
 
-.store-explanation {
-    color: #b8c2d1;
-    line-height: 1.5;
-    background: #182235;
-    padding: 14px;
-    border-radius: 9px;
-    margin: 16px 0;
+#bossBarContainer{
+ width:100%;
+ height:18px;
+ background:#251a2c;
+ border:1px solid #58356b;
+ border-radius:6px;
+ overflow:hidden
 }
 
-.store-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+#bossBar{
+ width:100%;
+ height:100%;
+ background:#c348ff
 }
 
-.shop-item {
-    background: #182235;
-    border: 1px solid #2d3a50;
-    padding: 15px;
-    border-radius: 10px;
+#instructions{
+ position:fixed;
+ left:15px;
+ bottom:15px;
+ z-index:10;
+ color:#c0cad8;
+ font-size:13px;
+ background:rgba(8,12,20,.75);
+ padding:9px 12px;
+ border-radius:7px
 }
 
-.shop-item h3 {
-    margin: 0 0 8px;
+.overlay{
+ position:fixed;
+ inset:0;
+ background:rgba(3,5,9,.93);
+ z-index:50;
+ display:none;
+ align-items:center;
+ justify-content:center;
+ text-align:center
 }
 
-.shop-item p {
-    color: #aab5c6;
-    min-height: 42px;
-    line-height: 1.35;
+.screen-box{
+ background:#121a29;
+ padding:34px;
+ border-radius:15px;
+ border:2px solid #35445b;
+ width:420px;
+ max-width:90%
 }
 
-.price {
-    color: #ffd54a;
-    font-weight: bold;
-    margin-bottom: 9px;
-}
+.screen-box h1{font-size:38px}
 
-.shop-item button {
-    width: 100%;
-}
+@media(max-width:700px){
+ #hud{
+  gap:7px;
+  padding:7px
+ }
 
-#message {
-    position: fixed;
-    left: 50%;
-    bottom: 25px;
-    transform: translateX(-50%);
-    background: rgba(8,12,20,.92);
-    padding: 12px 20px;
-    border-radius: 8px;
-    z-index: 40;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity .2s;
-}
+ .bar{width:75px}
+ .stat{min-width:auto}
 
-#bossInfo {
-    position: fixed;
-    top: 88px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 360px;
-    text-align: center;
-    z-index: 12;
-    display: none;
-}
+ #biomeName{display:none}
 
-#bossName {
-    font-weight: bold;
-    margin-bottom: 5px;
-}
+ .store-grid{grid-template-columns:1fr}
 
-#bossBarContainer {
-    width: 100%;
-    height: 18px;
-    background: #251a2c;
-    border: 1px solid #58356b;
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-#bossBar {
-    width: 100%;
-    height: 100%;
-    background: #c348ff;
-    transition: width .15s;
-}
-
-#instructions {
-    position: fixed;
-    left: 15px;
-    bottom: 15px;
-    z-index: 10;
-    color: #c0cad8;
-    font-size: 13px;
-    background: rgba(8,12,20,.75);
-    padding: 9px 12px;
-    border-radius: 7px;
-}
-
-.overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(3,5,9,.92);
-    z-index: 50;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.screen-box {
-    background: #121a29;
-    padding: 35px;
-    border-radius: 15px;
-    border: 2px solid #35445b;
-    width: 420px;
-    max-width: 90%;
-}
-
-.screen-box h1 {
-    font-size: 38px;
-}
-
-@media(max-width:700px) {
-    #hud {
-        gap: 8px;
-        padding: 7px;
-    }
-
-    .bar {
-        width: 80px;
-    }
-
-    .stat {
-        min-width: auto;
-    }
-
-    #biomeName {
-        display: none;
-    }
-
-    .store-grid {
-        grid-template-columns: 1fr;
-    }
-
-    #instructions {
-        display: none;
-    }
+ #instructions{display:none}
 }
 </style>
 </head>
@@ -291,787 +255,1243 @@ button:hover {
 
 <div id="hud">
 
-    <div class="stat">
-        <div class="stat-title">HEALTH</div>
-        <div class="bar">
-            <div id="healthBar" class="bar-inner"></div>
-        </div>
-    </div>
+ <div class="stat">
+  <div class="stat-title">HEALTH</div>
+  <div class="bar">
+   <div id="healthBar" class="bar-inner"></div>
+  </div>
+ </div>
 
-    <div class="stat">
-        <div class="stat-title">XP</div>
-        <div class="bar">
-            <div id="xpBar" class="bar-inner"></div>
-        </div>
-    </div>
+ <div class="stat">
+  <div class="stat-title">XP</div>
+  <div class="bar">
+   <div id="xpBar" class="bar-inner"></div>
+  </div>
+ </div>
 
-    <div>
-        <div class="stat-title">LEVEL</div>
-        <strong id="level">1</strong>
-    </div>
+ <div>
+  <div class="stat-title">LEVEL</div>
+  <strong id="level">1</strong>
+ </div>
 
-    <div>
-        <div class="stat-title">COINS</div>
-        <div id="coins">💰 0</div>
-    </div>
+ <div>
+  <div class="stat-title">COINS</div>
+  <div id="coins">💰 0</div>
+ </div>
 
-    <div id="biomeName">🌲 Forest</div>
+ <div id="biomeName">🌲 Forest</div>
 
-    <button id="storeButton" onclick="openStore()">🏪 Store</button>
+ <button id="storeButton" onclick="openStore()">🏪 Store</button>
 
 </div>
 
 <div id="bossInfo">
-    <div id="bossName">Boss</div>
-    <div id="bossBarContainer">
-        <div id="bossBar"></div>
-    </div>
+ <div id="bossName">Boss</div>
+ <div id="bossBarContainer">
+  <div id="bossBar"></div>
+ </div>
 </div>
 
 <div id="instructions">
-    WASD / Arrow Keys = Move &nbsp; | &nbsp;
-    Mouse = Aim &nbsp; | &nbsp;
-    Click = Shoot &nbsp; | &nbsp;
-    SPACE = Sword
+ WASD / Arrows = Move | Mouse = Aim | Click = Shoot | SPACE = Sword | E = Store
 </div>
 
 <div id="message"></div>
 
 <canvas id="game"></canvas>
 
-<!-- STORE -->
-
 <div id="store">
 
-    <div class="store-header">
-        <h1>🏪 Adventurer's Store</h1>
-        <button onclick="closeStore()">✕</button>
-    </div>
+ <div class="store-header">
+  <h1>🏪 Adventurer's Store</h1>
+  <button onclick="closeStore()">✕</button>
+ </div>
 
-    <div class="store-explanation">
-        <strong>How the store works:</strong><br><br>
+ <div class="store-explanation">
+  <b>How the store works</b><br><br>
+  💰 Defeat enemies to earn coins.<br>
+  ⭐ Earn XP and level up.<br>
+  ⚔️ Sword upgrades increase sword damage.<br>
+  🔫 Gun upgrades increase bullet damage.<br>
+  ❤️ Health upgrades increase maximum HP.<br>
+  👟 Speed upgrades make you faster.<br>
+  🧪 Potions restore health.
+ </div>
 
-        💰 Defeat enemies to earn coins.<br>
-        ⭐ Defeat enemies to gain XP and level up.<br>
-        ⚔️ Sword upgrades increase close-range damage.<br>
-        🔫 Gun upgrades increase shooting damage.<br>
-        ❤️ Health upgrades increase maximum HP.<br>
-        👟 Speed upgrades make you faster.<br>
-        🧪 Potions restore health.
-    </div>
+ <div class="store-grid">
 
-    <div class="store-grid">
+  <div class="shop-item">
+   <h3>⚔️ Iron Sword</h3>
+   <p>Increase sword damage by 8.</p>
+   <div class="price">💰 50</div>
+   <button onclick="buySword()">Buy Upgrade</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>⚔️ Iron Sword</h3>
-            <p>Increase sword damage by 8.</p>
-            <div class="price">💰 50</div>
-            <button onclick="buySword()">Buy Upgrade</button>
-        </div>
+  <div class="shop-item">
+   <h3>🔫 Better Gun</h3>
+   <p>Increase gun damage by 6.</p>
+   <div class="price">💰 60</div>
+   <button onclick="buyGun()">Buy Upgrade</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>🔫 Better Gun</h3>
-            <p>Increase bullet damage by 6.</p>
-            <div class="price">💰 60</div>
-            <button onclick="buyGun()">Buy Upgrade</button>
-        </div>
+  <div class="shop-item">
+   <h3>❤️ Health Armor</h3>
+   <p>Increase maximum health by 25.</p>
+   <div class="price">💰 70</div>
+   <button onclick="buyHealth()">Buy Upgrade</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>❤️ Health Armor</h3>
-            <p>Increase maximum health by 25 and fully heal.</p>
-            <div class="price">💰 70</div>
-            <button onclick="buyHealth()">Buy Upgrade</button>
-        </div>
+  <div class="shop-item">
+   <h3>👟 Swift Boots</h3>
+   <p>Increase movement speed.</p>
+   <div class="price">💰 80</div>
+   <button onclick="buySpeed()">Buy Upgrade</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>👟 Swift Boots</h3>
-            <p>Increase movement speed.</p>
-            <div class="price">💰 80</div>
-            <button onclick="buySpeed()">Buy Upgrade</button>
-        </div>
+  <div class="shop-item">
+   <h3>🧪 Health Potion</h3>
+   <p>Restore 40 health.</p>
+   <div class="price">💰 25</div>
+   <button onclick="buyPotion()">Buy Potion</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>🧪 Health Potion</h3>
-            <p>Restore 40 health instantly.</p>
-            <div class="price">💰 25</div>
-            <button onclick="buyPotion()">Buy Potion</button>
-        </div>
+  <div class="shop-item">
+   <h3>💥 Heavy Bullets</h3>
+   <p>Increase bullet damage and size.</p>
+   <div class="price">💰 100</div>
+   <button onclick="buyBullets()">Buy Upgrade</button>
+  </div>
 
-        <div class="shop-item">
-            <h3>💥 Heavy Bullets</h3>
-            <p>Increase bullet damage and size.</p>
-            <div class="price">💰 100</div>
-            <button onclick="buyBullets()">Buy Upgrade</button>
-        </div>
-
-    </div>
+ </div>
 </div>
-
-<!-- DEATH -->
 
 <div id="deathScreen" class="overlay">
-    <div class="screen-box">
-        <h1>💀 Defeated</h1>
-        <p>The wilderness was too much this time.</p>
-        <button onclick="restartGame()">Try Again</button>
-    </div>
+ <div class="screen-box">
+  <h1>💀 Defeated</h1>
+  <p>The wilderness was too much this time.</p>
+  <button onclick="restartGame()">Try Again</button>
+ </div>
 </div>
 
-<!-- VICTORY -->
-
 <div id="victoryScreen" class="overlay">
-    <div class="screen-box">
-        <h1>🏆 VICTORY!</h1>
-        <p>You defeated every biome boss!</p>
-        <p>You conquered the Forest, Frozen Peaks, Desert and Volcano!</p>
-        <button onclick="restartGame()">Play Again</button>
-    </div>
+ <div class="screen-box">
+  <h1>🏆 VICTORY!</h1>
+  <p>You defeated every biome boss!</p>
+  <p>You conquered the entire wilderness!</p>
+  <button onclick="restartGame()">Play Again</button>
+ </div>
 </div>
 
 <script>
 
-const canvas = document.getElementById("game");
-const ctx = canvas.getContext("2d");
+const canvas=document.getElementById("game");
+const ctx=canvas.getContext("2d");
 
-let W = window.innerWidth;
-let H = window.innerHeight;
+let W=innerWidth;
+let H=innerHeight;
 
-function resizeCanvas() {
-    W = window.innerWidth;
-    H = window.innerHeight;
-
-    canvas.width = W;
-    canvas.height = H;
+function resize(){
+ W=innerWidth;
+ H=innerHeight;
+ canvas.width=W;
+ canvas.height=H;
 }
 
-resizeCanvas();
+resize();
+addEventListener("resize",resize);
 
-window.addEventListener("resize", resizeCanvas);
-
-
-// =====================================================
-// PLAYER
-// =====================================================
-
-const player = {
-    x: W / 2,
-    y: H / 2 + 50,
-
-    radius: 18,
-
-    health: 100,
-    maxHealth: 100,
-
-    level: 1,
-    xp: 0,
-    xpNeeded: 100,
-
-    coins: 0,
-
-    speed: 4,
-
-    swordDamage: 20,
-    gunDamage: 12,
-
-    bulletSize: 5,
-
-    attackCooldown: 0,
-    swordCooldown: 0,
-
-    facingX: 1,
-    facingY: 0
+const player={
+ x:W/2,
+ y:H/2+50,
+ radius:18,
+ health:100,
+ maxHealth:100,
+ level:1,
+ xp:0,
+ xpNeeded:100,
+ coins:0,
+ speed:4,
+ swordDamage:20,
+ gunDamage:12,
+ bulletSize:5,
+ attackCooldown:0,
+ swordCooldown:0,
+ facingX:1,
+ facingY:0
 };
 
+let biome=0;
 
-// =====================================================
-// BIOMES
-// =====================================================
-
-let biome = 0;
-
-const biomes = [
-
-    {
-        name: "🌲 Forest",
-        background: "#16351d",
-
-        enemies: [
-            {
-                name: "Slime",
-                color: "#65c466",
-                health: 35,
-                damage: 7,
-                speed: 1.2,
-                radius: 16
-            },
-            {
-                name: "Wolf",
-                color: "#777d88",
-                health: 55,
-                damage: 10,
-                speed: 2.2,
-                radius: 17
-            },
-            {
-                name: "Bandit",
-                color: "#a56b43",
-                health: 70,
-                damage: 13,
-                speed: 1.5,
-                radius: 18
-            }
-        ],
-
-        boss: {
-            name: "Forest Guardian",
-            health: 650,
-            damage: 22,
-            speed: 1.1,
-            radius: 50
-        }
-    },
-
-    {
-        name: "❄️ Frozen Peaks",
-        background: "#17344a",
-
-        enemies: [
-            {
-                name: "Ice Slime",
-                color: "#9fe8ff",
-                health: 75,
-                damage: 12,
-                speed: 1.3,
-                radius: 17
-            },
-            {
-                name: "Frost Wolf",
-                color: "#b9d9ec",
-                health: 95,
-                damage: 17,
-                speed: 2.4,
-                radius: 18
-            },
-            {
-                name: "Ice Golem",
-                color: "#628ab0",
-                health: 150,
-                damage: 22,
-                speed: .8,
-                radius: 25
-            }
-        ],
-
-        boss: {
-            name: "Frost Titan",
-            health: 1100,
-            damage: 30,
-            speed: .9,
-            radius: 58
-        }
-    },
-
-    {
-        name: "🏜️ Desert",
-        background: "#8b6231",
-
-        enemies: [
-            {
-                name: "Scorpion",
-                color: "#d7a444",
-                health: 100,
-                damage: 20,
-                speed: 2,
-                radius: 18
-            },
-            {
-                name: "Sand Crawler",
-                color: "#a66b35",
-                health: 130,
-                damage: 24,
-                speed: 1.7,
-                radius: 22
-            },
-            {
-                name: "Bandit",
-                color: "#d8c071",
-                health: 140,
-                damage: 22,
-                speed: 1.6,
-                radius: 18
-            }
-        ],
-
-        boss: {
-            name: "Sand Wyrm",
-            health: 1500,
-            damage: 38,
-            speed: 1.3,
-            radius: 55
-        }
-    },
-
-    {
-        name: "🌋 Volcano",
-        background: "#4a1915",
-
-        enemies: [
-            {
-                name: "Fire Slime",
-                color: "#ff6b35",
-                health: 140,
-                damage: 25,
-                speed: 1.4,
-                radius: 18
-            },
-            {
-                name: "Lava Beast",
-                color: "#c93422",
-                health: 190,
-                damage: 30,
-                speed: 1.1,
-                radius: 24
-            },
-            {
-                name: "Demon",
-                color: "#8f2720",
-                health: 220,
-                damage: 35,
-                speed: 1.8,
-                radius: 23
-            }
-        ],
-
-        boss: {
-            name: "Volcano Demon",
-            health: 2200,
-            damage: 48,
-            speed: 1.4,
-            radius: 62
-        }
-    }
-
+const biomes=[
+ {
+  name:"🌲 Forest",
+  bg:"#16351d",
+  enemies:[
+   {name:"Slime",color:"#65c466",health:35,damage:7,speed:1.2,radius:16},
+   {name:"Wolf",color:"#777d88",health:55,damage:10,speed:2.2,radius:17},
+   {name:"Bandit",color:"#a56b43",health:70,damage:13,speed:1.5,radius:18}
+  ],
+  boss:{name:"Forest Guardian",health:650,damage:22,speed:1.1,radius:50}
+ },
+ {
+  name:"❄️ Frozen Peaks",
+  bg:"#17344a",
+  enemies:[
+   {name:"Ice Slime",color:"#9fe8ff",health:75,damage:12,speed:1.3,radius:17},
+   {name:"Frost Wolf",color:"#b9d9ec",health:95,damage:17,speed:2.4,radius:18},
+   {name:"Ice Golem",color:"#628ab0",health:150,damage:22,speed:.8,radius:25}
+  ],
+  boss:{name:"Frost Titan",health:1100,damage:30,speed:.9,radius:58}
+ },
+ {
+  name:"🏜️ Desert",
+  bg:"#8b6231",
+  enemies:[
+   {name:"Scorpion",color:"#d7a444",health:100,damage:20,speed:2,radius:18},
+   {name:"Sand Crawler",color:"#a66b35",health:130,damage:24,speed:1.7,radius:22},
+   {name:"Bandit",color:"#d8c071",health:140,damage:22,speed:1.6,radius:18}
+  ],
+  boss:{name:"Sand Wyrm",health:1500,damage:38,speed:1.3,radius:55}
+ },
+ {
+  name:"🌋 Volcano",
+  bg:"#4a1915",
+  enemies:[
+   {name:"Fire Slime",color:"#ff6b35",health:140,damage:25,speed:1.4,radius:18},
+   {name:"Lava Beast",color:"#c93422",health:190,damage:30,speed:1.1,radius:24},
+   {name:"Demon",color:"#8f2720",health:220,damage:35,speed:1.8,radius:23}
+  ],
+  boss:{name:"Volcano Demon",health:2200,damage:48,speed:1.4,radius:62}
+ }
 ];
+const keys={};
 
+addEventListener("keydown",e=>{
+ keys[e.key.toLowerCase()]=true;
 
-// =====================================================
-// INPUT
-// =====================================================
+ if(e.code==="Space"){
+  e.preventDefault();
+  swordAttack();
+ }
 
-const keys = {};
-
-window.addEventListener("keydown", function(e) {
-
-    keys[e.key.toLowerCase()] = true;
-
-    if(e.code === "Space") {
-        e.preventDefault();
-        swordAttack();
-    }
-
-    if(e.key.toLowerCase() === "e") {
-        openStore();
-    }
-
+ if(e.key.toLowerCase()==="e"){
+  openStore();
+ }
 });
 
-window.addEventListener("keyup", function(e) {
-    keys[e.key.toLowerCase()] = false;
+addEventListener("keyup",e=>{
+ keys[e.key.toLowerCase()]=false;
 });
 
+const mouse={x:W/2,y:H/2};
 
-const mouse = {
-    x: W / 2,
-    y: H / 2
-};
-
-canvas.addEventListener("mousemove", function(e) {
-
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-
+canvas.addEventListener("mousemove",e=>{
+ mouse.x=e.clientX;
+ mouse.y=e.clientY;
 });
 
-canvas.addEventListener("mousedown", function() {
-
-    shoot();
-
+canvas.addEventListener("mousedown",()=>{
+ shoot();
 });
 
+let bullets=[];
+let enemies=[];
+let particles=[];
+let boss=null;
 
-// =====================================================
-// GAME ARRAYS
-// =====================================================
+let spawnTimer=30;
+let biomeKills=0;
+let gameOver=false;
+let messageTimer;
 
-let bullets = [];
-let enemies = [];
-let particles = [];
+function showMessage(text){
 
-let boss = null;
+ const el=document.getElementById("message");
 
-let spawnTimer = 0;
-let biomeKills = 0;
+ el.textContent=text;
+ el.style.opacity="1";
 
-let gameOver = false;
+ clearTimeout(messageTimer);
 
+ messageTimer=setTimeout(()=>{
+  el.style.opacity="0";
+ },1800);
+}
 
-// =====================================================
-// MESSAGE
-// =====================================================
+function shoot(){
 
-let messageTimer = null;
+ if(gameOver)return;
+ if(player.attackCooldown>0)return;
 
-function showMessage(text) {
+ let dx=mouse.x-player.x;
+ let dy=mouse.y-player.y;
+ let d=Math.hypot(dx,dy);
 
-    const element = document.getElementById("message");
+ if(d<.01)return;
 
-    element.textContent = text;
-    element.style.opacity = "1";
+ dx/=d;
+ dy/=d;
 
-    clearTimeout(messageTimer);
+ player.facingX=dx;
+ player.facingY=dy;
 
-    messageTimer = setTimeout(function() {
-        element.style.opacity = "0";
-    }, 1800);
+ bullets.push({
+  x:player.x+dx*22,
+  y:player.y+dy*22,
+  vx:dx*9,
+  vy:dy*9,
+  radius:player.bulletSize,
+  damage:player.gunDamage,
+  life:100
+ });
+
+ player.attackCooldown=9;
+}
+
+function swordAttack(){
+
+ if(gameOver)return;
+ if(player.swordCooldown>0)return;
+
+ player.swordCooldown=24;
+
+ let hit=false;
+
+ for(let i=enemies.length-1;i>=0;i--){
+
+  let e=enemies[i];
+
+  let dx=e.x-player.x;
+  let dy=e.y-player.y;
+  let d=Math.hypot(dx,dy);
+
+  if(d<=78){
+
+   e.health-=player.swordDamage;
+   e.hitFlash=5;
+   hit=true;
+
+   hitParticles(e.x,e.y);
+
+   if(e.health<=0){
+    killEnemy(e);
+   }
+  }
+ }
+
+ if(boss){
+
+  let dx=boss.x-player.x;
+  let dy=boss.y-player.y;
+  let d=Math.hypot(dx,dy);
+
+  if(d<=100){
+
+   boss.health-=player.swordDamage;
+   boss.hitFlash=5;
+   hit=true;
+
+   hitParticles(boss.x,boss.y);
+  }
+ }
+
+ if(hit)showMessage("⚔️ Sword hit!");
 
 }
 
+function spawnEnemy(){
 
-// =====================================================
-// SHOOTING
-// =====================================================
+ if(boss)return;
 
-function shoot() {
+ let data=biomes[biome];
 
-    if(gameOver) return;
+ let t=data.enemies[
+  Math.floor(Math.random()*data.enemies.length)
+ ];
 
-    if(player.attackCooldown > 0) return;
+ let multiplier=1+biome*.45;
 
-    const dx = mouse.x - player.x;
-    const dy = mouse.y - player.y;
+ let side=Math.floor(Math.random()*4);
+ let x,y;
 
-    const distance = Math.hypot(dx, dy);
+ if(side===0){
+  x=-40;
+  y=90+Math.random()*(H-90);
+ }
+ else if(side===1){
+  x=W+40;
+  y=90+Math.random()*(H-90);
+ }
+ else if(side===2){
+  x=Math.random()*W;
+  y=90;
+ }
+ else{
+  x=Math.random()*W;
+  y=H+40;
+ }
 
-    if(distance < 0.01) return;
-
-    const vx = dx / distance;
-    const vy = dy / distance;
-
-    player.facingX = vx;
-    player.facingY = vy;
-
-    bullets.push({
-
-        x: player.x + vx * 22,
-        y: player.y + vy * 22,
-
-        vx: vx * 9,
-        vy: vy * 9,
-
-        radius: player.bulletSize,
-        damage: player.gunDamage,
-
-        life: 100
-
-    });
-
-    player.attackCooldown = 9;
+ enemies.push({
+  x:x,
+  y:y,
+  radius:t.radius,
+  health:t.health*multiplier,
+  maxHealth:t.health*multiplier,
+  damage:t.damage*multiplier,
+  speed:t.speed,
+  name:t.name,
+  color:t.color,
+  hitFlash:0,
+  attackCooldown:0
+ });
 }
 
+function killEnemy(enemy){
 
-// =====================================================
-// SWORD
-// =====================================================
+ let index=enemies.indexOf(enemy);
 
-function swordAttack() {
+ if(index!==-1){
+  enemies.splice(index,1);
+ }
 
-    if(gameOver) return;
+ let coins=8+biome*5;
+ let xp=20+biome*10;
 
-    if(player.swordCooldown > 0) return;
+ player.coins+=coins;
 
-    player.swordCooldown = 24;
+ gainXP(xp);
 
-    let hitSomething = false;
+ biomeKills++;
 
-    for(let i = enemies.length - 1; i >= 0; i--) {
+ deathParticles(enemy.x,enemy.y);
 
-        const enemy = enemies[i];
+ showMessage("💰 +"+coins+"   ⭐ +"+xp+" XP");
 
-        const dx = enemy.x - player.x;
-        const dy = enemy.y - player.y;
-
-        const distance = Math.hypot(dx, dy);
-
-        if(distance <= 78) {
-
-            enemy.health -= player.swordDamage;
-            enemy.hitFlash = 6;
-
-            hitSomething = true;
-
-            createHitParticles(enemy.x, enemy.y);
-
-            if(enemy.health <= 0) {
-                killEnemy(enemy);
-            }
-
-        }
-
-    }
-
-    if(boss) {
-
-        const dx = boss.x - player.x;
-        const dy = boss.y - player.y;
-
-        const distance = Math.hypot(dx, dy);
-
-        if(distance <= 100) {
-
-            boss.health -= player.swordDamage;
-            boss.hitFlash = 6;
-
-            hitSomething = true;
-
-            createHitParticles(boss.x, boss.y);
-
-        }
-
-    }
-
-    if(hitSomething) {
-        showMessage("⚔️ Sword hit!");
-    }
-
+ if(biomeKills>=12&&!boss){
+  spawnBoss();
+ }
 }
 
+function spawnBoss(){
 
-// =====================================================
-// SPAWN ENEMY
-// =====================================================
+ if(boss)return;
 
-function spawnEnemy() {
+ let b=biomes[biome].boss;
 
-    if(boss) return;
+ boss={
+  x:W/2,
+  y:160,
+  radius:b.radius,
+  health:b.health,
+  maxHealth:b.health,
+  damage:b.damage,
+  speed:b.speed,
+  name:b.name,
+  attackTimer:60,
+  hitFlash:0
+ };
 
-    const data = biomes[biome];
+ enemies=[];
 
-    const template =
-        data.enemies[
-            Math.floor(Math.random() * data.enemies.length)
-        ];
+ document.getElementById("bossInfo").style.display="block";
+ document.getElementById("bossName").textContent="👹 "+boss.name;
 
-    const multiplier = 1 + biome * .45;
-
-    let x;
-    let y;
-
-    const side = Math.floor(Math.random() * 4);
-
-    if(side === 0) {
-        x = -40;
-        y = 90 + Math.random() * (H - 90);
-    }
-
-    else if(side === 1) {
-        x = W + 40;
-        y = 90 + Math.random() * (H - 90);
-    }
-
-    else if(side === 2) {
-        x = Math.random() * W;
-        y = 85;
-    }
-
-    else {
-        x = Math.random() * W;
-        y = H + 40;
-    }
-
-    enemies.push({
-
-        x: x,
-        y: y,
-
-        radius: template.radius,
-
-        health: template.health * multiplier,
-        maxHealth: template.health * multiplier,
-
-        damage: template.damage * multiplier,
-        speed: template.speed,
-
-        name: template.name,
-        color: template.color,
-
-        hitFlash: 0,
-        attackCooldown: 0
-
-    });
-
+ showMessage("⚠️ BOSS: "+boss.name);
 }
 
+function updateBoss(){
 
-// =====================================================
-// KILL ENEMY
-// =====================================================
+ if(!boss)return;
 
-function killEnemy(enemy) {
+ let dx=player.x-boss.x;
+ let dy=player.y-boss.y;
+ let d=Math.hypot(dx,dy);
 
-    const index = enemies.indexOf(enemy);
+ if(d>.01 && d>boss.radius+player.radius+20){
 
-    if(index !== -1) {
-        enemies.splice(index, 1);
-    }
+  boss.x+=dx/d*boss.speed;
+  boss.y+=dy/d*boss.speed;
+ }
 
-    const reward = 8 + biome * 5;
-    const xpReward = 20 + biome * 10;
+ boss.attackTimer--;
 
-    player.coins += reward;
+ if(
+  d<=boss.radius+player.radius+15 &&
+  boss.attackTimer<=0
+ ){
 
-    gainXP(xpReward);
+  player.health-=boss.damage;
+  boss.attackTimer=60;
 
-    biomeKills++;
+  hitParticles(player.x,player.y);
 
-    createDeathParticles(enemy.x, enemy.y);
+  showMessage("💥 "+boss.name+" attacked!");
+ }
 
-    showMessage(
-        "💰 +" + reward + " coins   ⭐ +" + xpReward + " XP"
-    );
+ boss.x=Math.max(
+  boss.radius,
+  Math.min(W-boss.radius,boss.x)
+ );
 
-    /*
-        After enough enemies are defeated,
-        spawn the biome boss.
-    */
+ boss.y=Math.max(
+  95+boss.radius,
+  Math.min(H-boss.radius,boss.y)
+ );
 
-    if(biomeKills >= 12 && !boss) {
-        spawnBoss();
-    }
+ if(boss.hitFlash>0)boss.hitFlash--;
 
+ updateBossBar();
+
+ if(boss.health<=0){
+  defeatBoss();
+ }
 }
 
+function defeatBoss(){
 
-// =====================================================
-// BOSS
-// =====================================================
+ let reward=200+biome*100;
 
-function spawnBoss() {
+ player.coins+=reward;
 
-    if(boss) return;
+ gainXP(250);
 
-    const data = biomes[biome];
+ deathParticles(boss.x,boss.y);
 
-    boss = {
+ showMessage(
+  "🏆 "+boss.name+" defeated! +"+reward+" coins!"
+ );
 
-        x: W / 2,
-        y: 150,
+ boss=null;
+ enemies=[];
+ bullets=[];
+ biomeKills=0;
 
-        radius: data.boss.radius,
+ document.getElementById("bossInfo").style.display="none";
 
-        health: data.boss.health,
-        maxHealth: data.boss.health,
+ if(biome<biomes.length-1){
 
-        damage: data.boss.damage,
-        speed: data.boss.speed,
+  biome++;
 
-        name: data.boss.name,
+  player.x=W/2;
+  player.y=H/2+50;
+  player.health=player.maxHealth;
 
-        attackTimer: 60,
-        hitFlash: 0
+  document.getElementById("biomeName").textContent=
+   biomes[biome].name;
 
-    };
+  showMessage(
+   "🌎 New biome: "+biomes[biome].name
+  );
 
-    enemies = [];
+ }
+ else{
 
-    document.getElementById("bossInfo").style.display = "block";
+  gameOver=true;
 
-    document.getElementById("bossName").textContent =
-        "👹 " + boss.name;
-
-    showMessage(
-        "⚠️ BOSS APPEARED: " + boss.name
-    );
-
+  document.getElementById("victoryScreen").style.display="flex";
+ }
 }
 
+function updateBossBar(){
 
-// =====================================================
-// UPDATE BOSS
-// =====================================================
+ if(!boss)return;
 
-function updateBoss() {
+ let percent=Math.max(
+  0,
+  boss.health/boss.maxHealth
+ )*100;
 
-    if(!boss) return;
-
-    const dx = player.x - boss.x;
-    const dy = player.y - boss.y;
-
-    const distance = Math.hypot(dx, dy);
-
-    if(distance > 0.01) {
-
-        if(distance > boss.radius + player.radius + 20) {
-
-            boss.x += dx / distance * boss.speed;
-            boss.y += dy / distance * boss.speed;
-
-        }
-
-    }
-
-    boss.attackTimer--;
-
-    if(
-        distance <= boss.radius + player.radius + 15 &&
-        boss.attackTimer <= 0
-    ) {
-
-        player.health -= boss.damage;
-
-        boss.attackTimer = 60;
-
-        createHitParticles(player.x, player.y);
-
-        showMessage("💥 " + boss.name + " attacked!");
-
-    }
-
-    boss.x = Math.max(
-        boss.radius,
-        Math.min(W - boss.radius, boss.x)
-    );
-
-    boss.y = Math.max(
-        90 + boss.radius,
-        Math.min(H - boss.radius, boss.y)
-    );
-
-    if(boss.hitFlash > 0) {
-        boss.hitFlash--;
-    }
-
-    updateBossBar();
-
-    if(boss.health <= 0) {
-        defeatBoss();
-    }
-
+ document.getElementById("bossBar").style.width=
+  percent+"%";
 }
 
+function gainXP(amount){
 
-// =====================================================
-// DEFEAT BOSS
-// =====================================================
+ player.xp+=amount;
 
-function defeatBoss() {
+ while(player.xp>=player.xpNeeded){
 
-    const reward = 200 + biome * 100;
+  player.xp-=player.xpNeeded;
 
-    player.coins += reward;
+  player.level++;
 
-    gainXP(250);
+  player.xpNeeded=
+   Math.floor(player.xpNeeded*1.35);
 
-    createDeathParticles(boss.x, boss.y);
+  player.maxHealth+=10;
+  player.health=player.maxHealth;
 
-    showMessage(
-   
+  player.swordDamage+=3;
+  player.gunDamage+=2;
+
+  showMessage(
+   "⭐ LEVEL UP! Level "+player.level
+  );
+ }
+}
+
+function updatePlayer(){
+
+ let dx=0;
+ let dy=0;
+
+ if(keys["w"]||keys["arrowup"])dy--;
+ if(keys["s"]||keys["arrowdown"])dy++;
+ if(keys["a"]||keys["arrowleft"])dx--;
+ if(keys["d"]||keys["arrowright"])dx++;
+
+ if(dx||dy){
+
+  let d=Math.hypot(dx,dy);
+
+  dx/=d;
+  dy/=d;
+
+  player.x+=dx*player.speed;
+  player.y+=dy*player.speed;
+ }
+
+ player.x=Math.max(
+  player.radius,
+  Math.min(W-player.radius,player.x)
+ );
+
+ player.y=Math.max(
+  82+player.radius,
+  Math.min(H-player.radius,player.y)
+ );
+
+ if(player.attackCooldown>0)
+  player.attackCooldown--;
+
+ if(player.swordCooldown>0)
+  player.swordCooldown--;
+}
+
+function updateBullets(){
+
+ for(let i=bullets.length-1;i>=0;i--){
+
+  let b=bullets[i];
+
+  b.x+=b.vx;
+  b.y+=b.vy;
+  b.life--;
+
+  let remove=false;
+
+  if(
+   b.x<-30||
+   b.x>W+30||
+   b.y<75||
+   b.y>H+30||
+   b.life<=0
+  ){
+   remove=true;
+  }
+
+  if(!remove){
+
+   for(let j=enemies.length-1;j>=0;j--){
+
+    let e=enemies[j];
+
+    let dx=e.x-b.x;
+    let dy=e.y-b.y;
+    let d=Math.hypot(dx,dy);
+
+    if(d<e.radius+b.radius){
+
+     e.health-=b.damage;
+     e.hitFlash=5;
+
+     hitParticles(b.x,b.y);
+
+     remove=true;
+
+     if(e.health<=0){
+      killEnemy(e);
+     }
+
+     break;
+    }
+   }
+  }
+
+  if(!remove&&boss){
+
+   let dx=boss.x-b.x;
+   let dy=boss.y-b.y;
+   let d=Math.hypot(dx,dy);
+
+   if(d<boss.radius+b.radius){
+
+    boss.health-=b.damage;
+    boss.hitFlash=5;
+
+    hitParticles(b.x,b.y);
+
+    remove=true;
+   }
+  }
+
+  if(remove){
+   bullets.splice(i,1);
+  }
+ }
+}
+
+function updateEnemies(){
+
+ for(let e of enemies){
+
+  let dx=player.x-e.x;
+  let dy=player.y-e.y;
+  let d=Math.hypot(dx,dy);
+
+  if(d>.01){
+
+   if(d>e.radius+player.radius+4){
+
+    e.x+=dx/d*e.speed;
+    e.y+=dy/d*e.speed;
+
+   }
+   else{
+
+    e.attackCooldown--;
+
+    if(e.attackCooldown<=0){
+
+     player.health-=e.damage;
+     e.attackCooldown=55;
+
+     hitParticles(player.x,player.y);
+    }
+   }
+  }
+
+  if(e.hitFlash>0)e.hitFlash--;
+ }
+}
+function hitParticles(x,y){
+
+ for(let i=0;i<5;i++){
+
+  particles.push({
+   x:x,
+   y:y,
+   vx:(Math.random()-.5)*5,
+   vy:(Math.random()-.5)*5,
+   life:18,
+   size:3
+  });
+ }
+}
+
+function deathParticles(x,y){
+
+ for(let i=0;i<16;i++){
+
+  particles.push({
+   x:x,
+   y:y,
+   vx:(Math.random()-.5)*7,
+   vy:(Math.random()-.5)*7,
+   life:35,
+   size:4
+  });
+ }
+}
+
+function updateParticles(){
+
+ for(let i=particles.length-1;i>=0;i--){
+
+  let p=particles[i];
+
+  p.x+=p.vx;
+  p.y+=p.vy;
+
+  p.vx*=.95;
+  p.vy*=.95;
+
+  p.life--;
+
+  if(p.life<=0){
+   particles.splice(i,1);
+  }
+ }
+}
+
+function checkDeath(){
+
+ if(player.health<=0){
+
+  player.health=0;
+  gameOver=true;
+
+  document.getElementById("deathScreen").style.display="flex";
+ }
+}
+
+function openStore(){
+
+ if(gameOver)return;
+
+ document.getElementById("store").style.display="block";
+}
+
+function closeStore(){
+
+ document.getElementById("store").style.display="none";
+}
+
+function spend(cost){
+
+ if(player.coins<cost){
+
+  showMessage("❌ Not enough coins!");
+
+  return false;
+ }
+
+ player.coins-=cost;
+
+ return true;
+}
+
+function buySword(){
+
+ if(spend(50)){
+
+  player.swordDamage+=8;
+
+  showMessage("⚔️ Sword upgraded!");
+ }
+}
+
+function buyGun(){
+
+ if(spend(60)){
+
+  player.gunDamage+=6;
+
+  showMessage("🔫 Gun upgraded!");
+ }
+}
+
+function buyHealth(){
+
+ if(spend(70)){
+
+  player.maxHealth+=25;
+  player.health=player.maxHealth;
+
+  showMessage("❤️ Health increased!");
+ }
+}
+
+function buySpeed(){
+
+ if(spend(80)){
+
+  player.speed+=.5;
+
+  showMessage("👟 You are faster!");
+ }
+}
+
+function buyPotion(){
+
+ if(spend(25)){
+
+  player.health=Math.min(
+   player.maxHealth,
+   player.health+40
+  );
+
+  showMessage("🧪 Health restored!");
+ }
+}
+
+function buyBullets(){
+
+ if(spend(100)){
+
+  player.gunDamage+=10;
+  player.bulletSize+=2;
+
+  showMessage("💥 Heavy bullets equipped!");
+ }
+}
+
+function drawBackground(){
+
+ ctx.fillStyle=biomes[biome].bg;
+ ctx.fillRect(0,0,W,H);
+
+ ctx.globalAlpha=.10;
+
+ let size=48;
+
+ for(let x=0;x<W;x+=size){
+
+  for(let y=76;y<H;y+=size){
+
+   ctx.fillStyle=
+    (Math.floor(x/size)+Math.floor(y/size))%2
+    ?"#000"
+    :"#fff";
+
+   ctx.fillRect(x,y,size,size);
+  }
+ }
+
+ ctx.globalAlpha=1;
+}
+
+function drawPlayer(){
+
+ ctx.save();
+
+ ctx.translate(player.x,player.y);
+
+ ctx.fillStyle="rgba(0,0,0,.3)";
+
+ ctx.beginPath();
+ ctx.ellipse(0,18,21,8,0,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle="#3d8bff";
+ ctx.fillRect(-15,-10,30,29);
+
+ ctx.fillStyle="#ffd0a1";
+
+ ctx.beginPath();
+ ctx.arc(0,-15,14,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle="#35251d";
+ ctx.fillRect(-13,-27,26,7);
+
+ ctx.fillStyle="#111";
+ ctx.fillRect(-7,-17,4,4);
+ ctx.fillRect(3,-17,4,4);
+
+ ctx.strokeStyle="#fff";
+ ctx.lineWidth=3;
+
+ ctx.beginPath();
+ ctx.moveTo(0,0);
+ ctx.lineTo(
+  player.facingX*24,
+  player.facingY*24
+ );
+ ctx.stroke();
+
+ ctx.restore();
+}
+
+function drawEnemy(e){
+
+ ctx.save();
+
+ ctx.translate(e.x,e.y);
+
+ ctx.fillStyle="rgba(0,0,0,.3)";
+
+ ctx.beginPath();
+ ctx.ellipse(
+  0,
+  e.radius*.8,
+  e.radius,
+  e.radius*.4,
+  0,0,Math.PI*2
+ );
+ ctx.fill();
+
+ ctx.fillStyle=
+  e.hitFlash>0?"#fff":e.color;
+
+ ctx.beginPath();
+ ctx.arc(0,0,e.radius,0,Math.PI*2);
+ ctx.fill();
+
+ ctx.fillStyle="#111";
+
+ ctx.fillRect(
+  -e.radius*.45,
+  -e.radius*.25,
+  5,5
+ );
+
+ ctx.fillRect(
+  e.radius*.2,
+  -e.radius*.25,
+  5,5
+ );
+
+ ctx.restore();
+
+ let width=e.radius*2.3;
+ let hp=Math.max(0,e.health/e.maxHealth);
+
+ ctx.fillStyle="#29191c";
+
+ ctx.fillRect(
+  e.x-width/2,
+  e.y-e.radius-10,
+  width,
+  5
+ );
+
+ ctx.fillStyle="#e84c4c";
+
+ ctx.fillRect(
+  e.x-width/2,
+  e.y-e.radius-10,
+  width*hp,
+  5
+ );
+}
+
+function drawBoss(){
+
+ if(!boss)return;
+
+ ctx.save();
+
+ ctx.translate(boss.x,boss.y);
+
+ ctx.fillStyle="rgba(0,0,0,.4)";
+
+ ctx.beginPath();
+ ctx.ellipse(
+  0,
+  boss.radius*.8,
+  boss.radius,
+  boss.radius*.4,
+  0,0,Math.PI*2
+ );
+ ctx.fill();
+
+ ctx.fillStyle=
+  boss.hitFlash>0?"#fff":"#8e3dba";
+
+ ctx.beginPath();
+ ctx.arc(
+  0,0,boss.radius,
+  0,Math.PI*2
+ );
+ ctx.fill();
+
+ ctx.fillStyle="#e8d0ff";
+
+ ctx.beginPath();
+ ctx.moveTo(
+  -boss.radius*.65,
+  -boss.radius*.45
+ );
+ ctx.lineTo(
+  -boss.radius*.35,
+  -boss.radius*1.15
+ );
+ ctx.lineTo(
+  -boss.radius*.05,
+  -boss.radius*.5
+ );
+ ctx.fill();
+
+ ctx.beginPath();
+ ctx.moveTo(
+  boss.radius*.65,
+  -boss.radius*.45
+ );
+ ctx.lineTo(
+  boss.radius*.35,
+  -boss.radius*1.15
+ );
+ ctx.lineTo(
+  boss.radius*.05,
+  -boss.radius*.5
+ );
+ ctx.fill();
+
+ ctx.fillStyle="#ffea55";
+
+ ctx.fillRect(
+  -boss.radius*.42,
+  -boss.radius*.15,
+  12,8
+ );
+
+ ctx.fillRect(
+  boss.radius*.18,
+  -boss.radius*.15,
+  12,8
+ );
+
+ ctx.restore();
+}
+
+function drawBullets(){
+
+ for(let b of bullets){
+
+  ctx.fillStyle="#ffe66d";
+
+  ctx.beginPath();
+  ctx.arc(
+   b.x,b.y,b.radius,
+   0,Math.PI*2
+  );
+  ctx.fill();
+ }
+}
+
+function drawParticles(){
+
+ for(let p of particles){
+
+  ctx.globalAlpha=Math.max(0,p.life/35);
+
+  ctx.fillStyle="#ffd54a";
+
+  ctx.fillRect(
+   p.x,p.y,
+   p.size,p.size
+  );
+ }
+
+ ctx.globalAlpha=1;
+}
+
+function updateHUD(){
+
+ let hp=Math.max(
+  0,
+  player.health/player.maxHealth
+ )*100;
+
+ let xp=Math.max(
+  0,
+  player.xp/player.xpNeeded
+ )*100;
+
+ document.getElementById("healthBar").style.width=
+  hp+"%";
+
+ document.getElementById("xpBar").style.width=
+  xp+"%";
+
+ document.getElementById("level").textContent=
+  player.level;
+
+ document.getElementById("coins").textContent=
+  "💰 "+player.coins;
+}
+
+function restartGame(){
+
+ player.x=W/2;
+ player.y=H/2+50;
+
+ player.health=100;
+ player.maxHealth=100;
+
+ player.level=1;
+ player.xp=0;
+ player.xpNeeded=100;
+
+ player.coins=0;
+
+ player.speed=4;
+ player.swordDamage=20;
+ player.gunDamage=12;
+ player.bulletSize=5;
+
+ player.attackCooldown=0;
+ player.swordCooldown=0;
+
+ biome=0;
+
+ bullets=[];
+ enemies=[];
+ particles=[];
+ boss=null;
+
+ spawnTimer=30;
+ biomeKills=0;
+ gameOver=false;
+
+ document.getElementById("deathScreen").style.display="none";
+ document.getElementById("victoryScreen").style.display="none";
+ document.getElementById("store").style.display="none";
+ document.getElementById("bossInfo").style.display="none";
+
+ document.getElementById("biomeName").textContent=
+  biomes[0].name;
+
+ updateHUD();
+
+ showMessage("🌲 Adventure begins!");
+}
+
+function gameLoop(){
+
+ requestAnimationFrame(gameLoop);
+
+ drawBackground();
+
+ if(!gameOver){
+
+  updatePlayer();
+  updateBullets();
+  updateEnemies();
+  updateBoss();
+  updateParticles();
+
+  spawnTimer--;
+
+  if(
+   spawnTimer<=0 &&
+   !boss &&
+   enemies.length<7
+  ){
+
+   spawnEnemy();
+
+   spawnTimer=Math.max(
+    25,
+    70-biome*10
+   );
+  }
+
+  checkDeath();
+
+ }
+ else{
+
+  updateParticles();
+ }
+
+ drawBullets();
+
+ for(let e of enemies){
+  drawEnemy(e);
+ }
+
+ drawBoss();
+ drawParticles();
+ drawPlayer();
+
+ updateHUD();
+}
+
+restartGame();
+gameLoop();
+
+</script>
+</body>
+</html>
