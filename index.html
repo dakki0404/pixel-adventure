@@ -10,17 +10,20 @@
     box-sizing: border-box;
 }
 
-body {
+html, body {
     margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: #090d14;
     color: white;
     font-family: Arial, sans-serif;
-    overflow: hidden;
 }
 
 canvas {
     display: block;
-    background: #102015;
+    width: 100vw;
+    height: 100vh;
     image-rendering: pixelated;
 }
 
@@ -29,8 +32,8 @@ canvas {
     top: 0;
     left: 0;
     right: 0;
-    height: 72px;
-    background: rgba(8, 12, 20, 0.94);
+    height: 76px;
+    background: rgba(8, 12, 20, 0.95);
     display: flex;
     align-items: center;
     gap: 18px;
@@ -59,7 +62,7 @@ canvas {
 
 .bar-inner {
     height: 100%;
-    transition: width 0.2s;
+    transition: width .15s;
 }
 
 #healthBar {
@@ -68,10 +71,6 @@ canvas {
 
 #xpBar {
     background: #4d9cff;
-}
-
-#bossBar {
-    background: #c348ff;
 }
 
 #coins {
@@ -182,10 +181,10 @@ button:hover {
     left: 50%;
     bottom: 25px;
     transform: translateX(-50%);
-    background: rgba(8, 12, 20, .9);
+    background: rgba(8,12,20,.92);
     padding: 12px 20px;
     border-radius: 8px;
-    z-index: 15;
+    z-index: 40;
     pointer-events: none;
     opacity: 0;
     transition: opacity .2s;
@@ -193,7 +192,7 @@ button:hover {
 
 #bossInfo {
     position: fixed;
-    top: 84px;
+    top: 88px;
     left: 50%;
     transform: translateX(-50%);
     width: 360px;
@@ -219,6 +218,8 @@ button:hover {
 #bossBar {
     width: 100%;
     height: 100%;
+    background: #c348ff;
+    transition: width .15s;
 }
 
 #instructions {
@@ -228,16 +229,15 @@ button:hover {
     z-index: 10;
     color: #c0cad8;
     font-size: 13px;
-    background: rgba(8, 12, 20, .75);
+    background: rgba(8,12,20,.75);
     padding: 9px 12px;
     border-radius: 7px;
 }
 
-#deathScreen,
-#victoryScreen {
+.overlay {
     position: fixed;
     inset: 0;
-    background: rgba(3, 5, 9, .92);
+    background: rgba(3,5,9,.92);
     z-index: 50;
     display: none;
     align-items: center;
@@ -318,6 +318,7 @@ button:hover {
     <div id="biomeName">🌲 Forest</div>
 
     <button id="storeButton" onclick="openStore()">🏪 Store</button>
+
 </div>
 
 <div id="bossInfo">
@@ -338,6 +339,8 @@ button:hover {
 
 <canvas id="game"></canvas>
 
+<!-- STORE -->
+
 <div id="store">
 
     <div class="store-header">
@@ -348,19 +351,13 @@ button:hover {
     <div class="store-explanation">
         <strong>How the store works:</strong><br><br>
 
-        💰 You earn coins by defeating enemies and bosses.<br><br>
-
-        ⚔️ <strong>Sword upgrades</strong> increase the damage of your close-range attack.<br><br>
-
-        🔫 <strong>Gun upgrades</strong> increase bullet damage and allow you to defeat stronger enemies faster.<br><br>
-
-        ❤️ <strong>Health upgrades</strong> increase your maximum health and heal you.<br><br>
-
-        🏃 <strong>Speed upgrades</strong> make it easier to dodge enemies.<br><br>
-
-        🧪 <strong>Potions</strong> instantly restore some health.<br><br>
-
-        The stronger biomes become, the more important upgrades are!
+        💰 Defeat enemies to earn coins.<br>
+        ⭐ Defeat enemies to gain XP and level up.<br>
+        ⚔️ Sword upgrades increase close-range damage.<br>
+        🔫 Gun upgrades increase shooting damage.<br>
+        ❤️ Health upgrades increase maximum HP.<br>
+        👟 Speed upgrades make you faster.<br>
+        🧪 Potions restore health.
     </div>
 
     <div class="store-grid">
@@ -381,7 +378,7 @@ button:hover {
 
         <div class="shop-item">
             <h3>❤️ Health Armor</h3>
-            <p>Increase maximum health by 25 and heal you.</p>
+            <p>Increase maximum health by 25 and fully heal.</p>
             <div class="price">💰 70</div>
             <button onclick="buyHealth()">Buy Upgrade</button>
         </div>
@@ -402,7 +399,7 @@ button:hover {
 
         <div class="shop-item">
             <h3>💥 Heavy Bullets</h3>
-            <p>Increase bullet size and damage.</p>
+            <p>Increase bullet damage and size.</p>
             <div class="price">💰 100</div>
             <button onclick="buyBullets()">Buy Upgrade</button>
         </div>
@@ -410,19 +407,23 @@ button:hover {
     </div>
 </div>
 
-<div id="deathScreen">
+<!-- DEATH -->
+
+<div id="deathScreen" class="overlay">
     <div class="screen-box">
         <h1>💀 Defeated</h1>
-        <p>You were defeated by the creatures of the wilderness.</p>
+        <p>The wilderness was too much this time.</p>
         <button onclick="restartGame()">Try Again</button>
     </div>
 </div>
 
-<div id="victoryScreen">
+<!-- VICTORY -->
+
+<div id="victoryScreen" class="overlay">
     <div class="screen-box">
         <h1>🏆 VICTORY!</h1>
-        <p>You defeated the Forest Guardian, Frost Titan, Sand Wyrm and Volcano Demon!</p>
-        <p>You conquered every biome!</p>
+        <p>You defeated every biome boss!</p>
+        <p>You conquered the Forest, Frozen Peaks, Desert and Volcano!</p>
         <button onclick="restartGame()">Play Again</button>
     </div>
 </div>
@@ -435,25 +436,27 @@ const ctx = canvas.getContext("2d");
 let W = window.innerWidth;
 let H = window.innerHeight;
 
-canvas.width = W;
-canvas.height = H;
-
-window.addEventListener("resize", () => {
+function resizeCanvas() {
     W = window.innerWidth;
     H = window.innerHeight;
 
     canvas.width = W;
     canvas.height = H;
-});
+}
+
+resizeCanvas();
+
+window.addEventListener("resize", resizeCanvas);
 
 
-// ==============================
+// =====================================================
 // PLAYER
-// ==============================
+// =====================================================
 
 const player = {
     x: W / 2,
     y: H / 2 + 50,
+
     radius: 18,
 
     health: 100,
@@ -473,485 +476,445 @@ const player = {
     bulletSize: 5,
 
     attackCooldown: 0,
-    swordCooldown: 0
+    swordCooldown: 0,
+
+    facingX: 1,
+    facingY: 0
 };
 
 
-// ==============================
-// GAME DATA
-// ==============================
+// =====================================================
+// BIOMES
+// =====================================================
 
 let biome = 0;
 
 const biomes = [
+
     {
         name: "🌲 Forest",
         background: "#16351d",
-        enemyColors: ["#64b95d", "#87502d", "#71805e"],
-        enemies: ["Slime", "Wolf", "Bandit"],
-        boss: "Forest Guardian"
-    },
 
-    {
-        name: "❄️ Frozen Peaks",
-        background: "#17344a",
-        enemyColors: ["#9fe8ff", "#628ab0", "#d8eaff"],
-        enemies: ["Ice Slime", "Frost Wolf", "Ice Golem"],
-        boss: "Frost Titan"
-    },
-
-    {
-        name: "🏜️ Desert",
-        background: "#8b6231",
-        enemyColors: ["#d7a444", "#a66b35", "#d8c071"],
-        enemies: ["Scorpion", "Sand Crawler", "Bandit"],
-        boss: "Sand Wyrm"
-    },
-
-    {
-        name: "🌋 Volcano",
-        background: "#4a1915",
-        enemyColors: ["#ff6b35", "#c93422", "#8f2720"],
-        enemies: ["Fire Slime", "Lava Beast", "Demon"],
-        boss: "Volcano Demon"
-    }
-];
-
-
-// ==============================
-// INPUT
-// ==============================
-
-const keys = {};
-
-window.addEventListener("keydown", e => {
-
-    keys[e.key.toLowerCase()] = true;
-
-    if(e.code === "Space") {
-        swordAttack();
-    }
-
-    if(e.key.toLowerCase() === "e") {
-        openStore();
-    }
-});
-
-window.addEventListener("keyup", e => {
-    keys[e.key.toLowerCase()] = false;
-});
-
-
-let mouse = {
-    x: W / 2,
-    y: H / 2
-};
-
-canvas.addEventListener("mousemove", e => {
-
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-
-});
-
-canvas.addEventListener("mousedown", () => {
-
-    shoot();
-
-});
-
-
-// ==============================
-// BULLETS
-// ==============================
-
-let bullets = [];
-
-function shoot() {
-
-    if(player.attackCooldown > 0) return;
-
-    player.attackCooldown = 12;
-
-    const dx = mouse.x - player.x;
-    const dy = mouse.y - player.y;
-
-    const distance = Math.hypot(dx, dy);
-
-    bullets.push({
-        x: player.x,
-        y: player.y,
-
-        vx: dx / distance * 8,
-        vy: dy / distance * 8,
-
-        damage: player.gunDamage,
-        radius: player.bulletSize
-    });
-}
-
-
-// ==============================
-// SWORD
-// ==============================
-
-function swordAttack() {
-
-    if(player.swordCooldown > 0) return;
-
-    player.swordCooldown = 25;
-
-    for(let enemy of enemies) {
-
-        const distance = Math.hypot(
-            enemy.x - player.x,
-            enemy.y - player.y
-        );
-
-        if(distance < 75) {
-
-            enemy.health -= player.swordDamage;
-
-            enemy.hitFlash = 5;
-        }
-    }
-}
-
-
-// ==============================
-// ENEMIES
-// ==============================
-
-let enemies = [];
-
-function spawnEnemy() {
-
-    const data = biomes[biome];
-
-    const type =
-        data.enemies[
-            Math.floor(Math.random() * data.enemies.length)
-        ];
-
-    let stats = getEnemyStats(type);
-
-    const side = Math.floor(Math.random() * 4);
-
-    let x;
-    let y;
-
-    if(side === 0) {
-        x = -40;
-        y = Math.random() * H;
-    }
-
-    if(side === 1) {
-        x = W + 40;
-        y = Math.random() * H;
-    }
-
-    if(side === 2) {
-        x = Math.random() * W;
-        y = 80;
-    }
-
-    if(side === 3) {
-        x = Math.random() * W;
-        y = H + 40;
-    }
-
-    enemies.push({
-
-        x,
-        y,
-
-        radius: stats.radius,
-
-        health: stats.health,
-        maxHealth: stats.health,
-
-        damage: stats.damage,
-        speed: stats.speed,
-
-        type,
-
-        color:
-            data.enemyColors[
-                Math.floor(Math.random() * data.enemyColors.length)
-            ],
-
-        hitFlash: 0
-    });
-}
-
-
-function getEnemyStats(type) {
-
-    const multiplier = 1 + biome * 0.55;
-
-    const stats = {
-
-        "Slime": {
-            health: 35,
-            damage: 7,
-            speed: 1.2,
-            radius: 16
-        },
-
-        "Wolf": {
-            health: 55,
-            damage: 10,
-            speed: 2.2,
-            radius: 17
-        },
-
-        "Bandit": {
-            health: 70,
-            damage: 13,
-            speed: 1.5,
-            radius: 18
-        },
-
-        "Ice Slime": {
-            health: 75,
-            damage: 12,
-            speed: 1.3,
-            radius: 17
-        },
-
-        "Frost Wolf": {
-            health: 95,
-            damage: 17,
-            speed: 2.4,
-            radius: 18
-        },
-
-        "Ice Golem": {
-            health: 150,
-            damage: 22,
-            speed: .8,
-            radius: 25
-        },
-
-        "Scorpion": {
-            health: 100,
-            damage: 20,
-            speed: 2,
-            radius: 18
-        },
-
-        "Sand Crawler": {
-            health: 130,
-            damage: 24,
-            speed: 1.7,
-            radius: 22
-        },
-
-        "Fire Slime": {
-            health: 140,
-            damage: 25,
-            speed: 1.4,
-            radius: 18
-        },
-
-        "Lava Beast": {
-            health: 190,
-            damage: 30,
-            speed: 1.1,
-            radius: 24
-        },
-
-        "Demon": {
-            health: 220,
-            damage: 35,
-            speed: 1.8,
-            radius: 23
-        }
-    };
-
-    let s = stats[type] || stats["Slime"];
-
-    return {
-        health: s.health * multiplier,
-        damage: s.damage * multiplier,
-        speed: s.speed,
-        radius: s.radius
-    };
-}
-
-
-// ==============================
-// BOSSES
-// ==============================
-
-let boss = null;
-
-function spawnBoss() {
-
-    const bossData = [
-        {
+        enemies: [
+            {
+                name: "Slime",
+                color: "#65c466",
+                health: 35,
+                damage: 7,
+                speed: 1.2,
+                radius: 16
+            },
+            {
+                name: "Wolf",
+                color: "#777d88",
+                health: 55,
+                damage: 10,
+                speed: 2.2,
+                radius: 17
+            },
+            {
+                name: "Bandit",
+                color: "#a56b43",
+                health: 70,
+                damage: 13,
+                speed: 1.5,
+                radius: 18
+            }
+        ],
+
+        boss: {
             name: "Forest Guardian",
             health: 650,
             damage: 22,
             speed: 1.1,
             radius: 50
-        },
+        }
+    },
 
-        {
+    {
+        name: "❄️ Frozen Peaks",
+        background: "#17344a",
+
+        enemies: [
+            {
+                name: "Ice Slime",
+                color: "#9fe8ff",
+                health: 75,
+                damage: 12,
+                speed: 1.3,
+                radius: 17
+            },
+            {
+                name: "Frost Wolf",
+                color: "#b9d9ec",
+                health: 95,
+                damage: 17,
+                speed: 2.4,
+                radius: 18
+            },
+            {
+                name: "Ice Golem",
+                color: "#628ab0",
+                health: 150,
+                damage: 22,
+                speed: .8,
+                radius: 25
+            }
+        ],
+
+        boss: {
             name: "Frost Titan",
             health: 1100,
             damage: 30,
             speed: .9,
             radius: 58
-        },
+        }
+    },
 
-        {
+    {
+        name: "🏜️ Desert",
+        background: "#8b6231",
+
+        enemies: [
+            {
+                name: "Scorpion",
+                color: "#d7a444",
+                health: 100,
+                damage: 20,
+                speed: 2,
+                radius: 18
+            },
+            {
+                name: "Sand Crawler",
+                color: "#a66b35",
+                health: 130,
+                damage: 24,
+                speed: 1.7,
+                radius: 22
+            },
+            {
+                name: "Bandit",
+                color: "#d8c071",
+                health: 140,
+                damage: 22,
+                speed: 1.6,
+                radius: 18
+            }
+        ],
+
+        boss: {
             name: "Sand Wyrm",
             health: 1500,
             damage: 38,
             speed: 1.3,
             radius: 55
-        },
+        }
+    },
 
-        {
+    {
+        name: "🌋 Volcano",
+        background: "#4a1915",
+
+        enemies: [
+            {
+                name: "Fire Slime",
+                color: "#ff6b35",
+                health: 140,
+                damage: 25,
+                speed: 1.4,
+                radius: 18
+            },
+            {
+                name: "Lava Beast",
+                color: "#c93422",
+                health: 190,
+                damage: 30,
+                speed: 1.1,
+                radius: 24
+            },
+            {
+                name: "Demon",
+                color: "#8f2720",
+                health: 220,
+                damage: 35,
+                speed: 1.8,
+                radius: 23
+            }
+        ],
+
+        boss: {
             name: "Volcano Demon",
             health: 2200,
             damage: 48,
             speed: 1.4,
             radius: 62
         }
-    ];
+    }
 
-    const b = bossData[biome];
+];
 
-    boss = {
 
-        x: W / 2,
-        y: 170,
+// =====================================================
+// INPUT
+// =====================================================
 
-        radius: b.radius,
+const keys = {};
 
-        health: b.health,
-        maxHealth: b.health,
+window.addEventListener("keydown", function(e) {
 
-        damage: b.damage,
-        speed: b.speed,
+    keys[e.key.toLowerCase()] = true;
 
-        name: b.name,
+    if(e.code === "Space") {
+        e.preventDefault();
+        swordAttack();
+    }
 
-        attackTimer: 0
-    };
+    if(e.key.toLowerCase() === "e") {
+        openStore();
+    }
 
-    document.getElementById("bossInfo").style.display = "block";
-    document.getElementById("bossName").textContent =
-        "👹 " + boss.name;
+});
+
+window.addEventListener("keyup", function(e) {
+    keys[e.key.toLowerCase()] = false;
+});
+
+
+const mouse = {
+    x: W / 2,
+    y: H / 2
+};
+
+canvas.addEventListener("mousemove", function(e) {
+
+    mouse.x = e.clientX;
+    mouse.y = e.clientY;
+
+});
+
+canvas.addEventListener("mousedown", function() {
+
+    shoot();
+
+});
+
+
+// =====================================================
+// GAME ARRAYS
+// =====================================================
+
+let bullets = [];
+let enemies = [];
+let particles = [];
+
+let boss = null;
+
+let spawnTimer = 0;
+let biomeKills = 0;
+
+let gameOver = false;
+
+
+// =====================================================
+// MESSAGE
+// =====================================================
+
+let messageTimer = null;
+
+function showMessage(text) {
+
+    const element = document.getElementById("message");
+
+    element.textContent = text;
+    element.style.opacity = "1";
+
+    clearTimeout(messageTimer);
+
+    messageTimer = setTimeout(function() {
+        element.style.opacity = "0";
+    }, 1800);
+
 }
 
 
-function updateBoss() {
+// =====================================================
+// SHOOTING
+// =====================================================
 
-    if(!boss) return;
+function shoot() {
 
-    const dx = player.x - boss.x;
-    const dy = player.y - boss.y;
+    if(gameOver) return;
+
+    if(player.attackCooldown > 0) return;
+
+    const dx = mouse.x - player.x;
+    const dy = mouse.y - player.y;
 
     const distance = Math.hypot(dx, dy);
 
-    if(distance > boss.radius + player.radius + 15) {
+    if(distance < 0.01) return;
 
-        boss.x += dx / distance * boss.speed;
-        boss.y += dy / distance * boss.speed;
+    const vx = dx / distance;
+    const vy = dy / distance;
 
-    } else {
+    player.facingX = vx;
+    player.facingY = vy;
 
-        boss.attackTimer--;
+    bullets.push({
 
-        if(boss.attackTimer <= 0) {
+        x: player.x + vx * 22,
+        y: player.y + vy * 22,
 
-            player.health -= boss.damage;
+        vx: vx * 9,
+        vy: vy * 9,
 
-            boss.attackTimer = 60;
+        radius: player.bulletSize,
+        damage: player.gunDamage,
 
-            showMessage("💥 The boss attacked you!");
-        }
-    }
+        life: 100
 
-    if(boss.health <= 0) {
+    });
 
-        player.coins += 200 + biome * 100;
-
-        gainXP(250);
-
-        showMessage(
-            "🏆 " + boss.name + " defeated! +" +
-            (200 + biome * 100) +
-            " coins"
-        );
-
-        boss = null;
-
-        document.getElementById("bossInfo").style.display = "none";
-
-        if(biome < biomes.length - 1) {
-
-            biome++;
-
-            enemies = [];
-            bullets = [];
-
-            player.x = W / 2;
-            player.y = H / 2;
-
-            showMessage(
-                "🌎 New biome unlocked: " +
-                biomes[biome].name
-            );
-
-        } else {
-
-            document.getElementById("victoryScreen").style.display =
-                "flex";
-        }
-    }
+    player.attackCooldown = 9;
 }
 
 
-// ==============================
-// XP / LEVELING
-// ==============================
+// =====================================================
+// SWORD
+// =====================================================
 
-function gainXP(amount) {
+function swordAttack() {
 
-    player.xp += amount;
+    if(gameOver) return;
 
-    while(player.xp >= player.xpNeeded) {
+    if(player.swordCooldown > 0) return;
 
-        player.xp -= player.xpNeeded;
+    player.swordCooldown = 24;
 
-        player.level++;
+    let hitSomething = false;
 
-        player.xpNeeded =
-            Math.floor(player.xpNeeded * 1.35);
+    for(let i = enemies.length - 1; i >= 0; i--) {
 
-        player.maxHealth += 10;
+        const enemy = enemies[i];
 
-        player.health = player.maxHealth;
+        const dx = enemy.x - player.x;
+        const dy = enemy.y - player.y;
 
-        player.swordDamage += 3;
+        const distance = Math.hypot(dx, dy);
 
-        player.gunDamage += 2;
+        if(distance <= 78) {
 
-        showMessage(
-            "⭐ LEVEL UP! You are now level " +
-            player.level
-        );
+            enemy.health -= player.swordDamage;
+            enemy.hitFlash = 6;
+
+            hitSomething = true;
+
+            createHitParticles(enemy.x, enemy.y);
+
+            if(enemy.health <= 0) {
+                killEnemy(enemy);
+            }
+
+        }
+
     }
+
+    if(boss) {
+
+        const dx = boss.x - player.x;
+        const dy = boss.y - player.y;
+
+        const distance = Math.hypot(dx, dy);
+
+        if(distance <= 100) {
+
+            boss.health -= player.swordDamage;
+            boss.hitFlash = 6;
+
+            hitSomething = true;
+
+            createHitParticles(boss.x, boss.y);
+
+        }
+
+    }
+
+    if(hitSomething) {
+        showMessage("⚔️ Sword hit!");
+    }
+
 }
 
 
-// ==============================
-// COINS
-// ==============================
+// =====================================================
+// SPAWN ENEMY
+// =====================================================
+
+function spawnEnemy() {
+
+    if(boss) return;
+
+    const data = biomes[biome];
+
+    const template =
+        data.enemies[
+            Math.floor(Math.random() * data.enemies.length)
+        ];
+
+    const multiplier = 1 + biome * .45;
+
+    let x;
+    let y;
+
+    const side = Math.floor(Math.random() * 4);
+
+    if(side === 0) {
+        x = -40;
+        y = 90 + Math.random() * (H - 90);
+    }
+
+    else if(side === 1) {
+        x = W + 40;
+        y = 90 + Math.random() * (H - 90);
+    }
+
+    else if(side === 2) {
+        x = Math.random() * W;
+        y = 85;
+    }
+
+    else {
+        x = Math.random() * W;
+        y = H + 40;
+    }
+
+    enemies.push({
+
+        x: x,
+        y: y,
+
+        radius: template.radius,
+
+        health: template.health * multiplier,
+        maxHealth: template.health * multiplier,
+
+        damage: template.damage * multiplier,
+        speed: template.speed,
+
+        name: template.name,
+        color: template.color,
+
+        hitFlash: 0,
+        attackCooldown: 0
+
+    });
+
+}
+
+
+// =====================================================
+// KILL ENEMY
+// =====================================================
 
 function killEnemy(enemy) {
 
@@ -962,154 +925,153 @@ function killEnemy(enemy) {
     }
 
     const reward = 8 + biome * 5;
+    const xpReward = 20 + biome * 10;
 
     player.coins += reward;
 
-    gainXP(20 + biome * 10);
+    gainXP(xpReward);
+
+    biomeKills++;
+
+    createDeathParticles(enemy.x, enemy.y);
 
     showMessage(
-        "💰 +" + reward + " coins"
+        "💰 +" + reward + " coins   ⭐ +" + xpReward + " XP"
     );
-}
 
+    /*
+        After enough enemies are defeated,
+        spawn the biome boss.
+    */
 
-// ==============================
-// STORE
-// ==============================
-
-function openStore() {
-
-    document.getElementById("store").style.display = "block";
-
-}
-
-function closeStore() {
-
-    document.getElementById("store").style.display = "none";
-
-}
-
-function spend(cost) {
-
-    if(player.coins < cost) {
-
-        showMessage("❌ Not enough coins!");
-
-        return false;
+    if(biomeKills >= 12 && !boss) {
+        spawnBoss();
     }
 
-    player.coins -= cost;
-
-    return true;
-}
-
-function buySword() {
-
-    if(spend(50)) {
-
-        player.swordDamage += 8;
-
-        showMessage("⚔️ Sword upgraded!");
-    }
-}
-
-function buyGun() {
-
-    if(spend(60)) {
-
-        player.gunDamage += 6;
-
-        showMessage("🔫 Gun upgraded!");
-    }
-}
-
-function buyHealth() {
-
-    if(spend(70)) {
-
-        player.maxHealth += 25;
-
-        player.health = player.maxHealth;
-
-        showMessage("❤️ Maximum health increased!");
-    }
-}
-
-function buySpeed() {
-
-    if(spend(80)) {
-
-        player.speed += .5;
-
-        showMessage("👟 Movement speed increased!");
-    }
-}
-
-function buyPotion() {
-
-    if(spend(25)) {
-
-        player.health = Math.min(
-            player.maxHealth,
-            player.health + 40
-        );
-
-        showMessage("🧪 You drank a health potion!");
-    }
-}
-
-function buyBullets() {
-
-    if(spend(100)) {
-
-        player.gunDamage += 10;
-
-        player.bulletSize += 2;
-
-        showMessage("💥 Heavy bullets equipped!");
-    }
 }
 
 
-// ==============================
-// MOVEMENT
-// ==============================
+// =====================================================
+// BOSS
+// =====================================================
 
-function updatePlayer() {
+function spawnBoss() {
 
-    let dx = 0;
-    let dy = 0;
+    if(boss) return;
 
-    if(keys["w"] || keys["arrowup"]) dy--;
-    if(keys["s"] || keys["arrowdown"]) dy++;
-    if(keys["a"] || keys["arrowleft"]) dx--;
-    if(keys["d"] || keys["arrowright"]) dx++;
+    const data = biomes[biome];
 
-    if(dx !== 0 || dy !== 0) {
+    boss = {
 
-        const distance = Math.hypot(dx, dy);
+        x: W / 2,
+        y: 150,
 
-        dx /= distance;
-        dy /= distance;
+        radius: data.boss.radius,
 
-        player.x += dx * player.speed;
-        player.y += dy * player.speed;
+        health: data.boss.health,
+        maxHealth: data.boss.health,
+
+        damage: data.boss.damage,
+        speed: data.boss.speed,
+
+        name: data.boss.name,
+
+        attackTimer: 60,
+        hitFlash: 0
+
+    };
+
+    enemies = [];
+
+    document.getElementById("bossInfo").style.display = "block";
+
+    document.getElementById("bossName").textContent =
+        "👹 " + boss.name;
+
+    showMessage(
+        "⚠️ BOSS APPEARED: " + boss.name
+    );
+
+}
+
+
+// =====================================================
+// UPDATE BOSS
+// =====================================================
+
+function updateBoss() {
+
+    if(!boss) return;
+
+    const dx = player.x - boss.x;
+    const dy = player.y - boss.y;
+
+    const distance = Math.hypot(dx, dy);
+
+    if(distance > 0.01) {
+
+        if(distance > boss.radius + player.radius + 20) {
+
+            boss.x += dx / distance * boss.speed;
+            boss.y += dy / distance * boss.speed;
+
+        }
+
     }
 
-    player.x =
-        Math.max(player.radius,
-        Math.min(W - player.radius, player.x));
+    boss.attackTimer--;
 
-    player.y =
-        Math.max(80 + player.radius,
-        Math.min(H - player.radius, player.y));
+    if(
+        distance <= boss.radius + player.radius + 15 &&
+        boss.attackTimer <= 0
+    ) {
+
+        player.health -= boss.damage;
+
+        boss.attackTimer = 60;
+
+        createHitParticles(player.x, player.y);
+
+        showMessage("💥 " + boss.name + " attacked!");
+
+    }
+
+    boss.x = Math.max(
+        boss.radius,
+        Math.min(W - boss.radius, boss.x)
+    );
+
+    boss.y = Math.max(
+        90 + boss.radius,
+        Math.min(H - boss.radius, boss.y)
+    );
+
+    if(boss.hitFlash > 0) {
+        boss.hitFlash--;
+    }
+
+    updateBossBar();
+
+    if(boss.health <= 0) {
+        defeatBoss();
+    }
+
 }
 
 
-// ==============================
-// BULLET UPDATE
-// ==============================
+// =====================================================
+// DEFEAT BOSS
+// =====================================================
 
-function updateBullets() {
+function defeatBoss() {
 
-    for(let i = bullets.length - 1; i >= 0; 
+    const reward = 200 + biome * 100;
+
+    player.coins += reward;
+
+    gainXP(250);
+
+    createDeathParticles(boss.x, boss.y);
+
+    showMessage(
+   
